@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Mestre - Bot Analisador de Roleta</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- CABEÇALHO -->
+    <header class="header">
+      <div class="badge-live">BETANO / ROLETA FÍSICA</div>
+      <h1>Painel de Análise do Mestre</h1>
+      <p>Mapeamento de Padrões & Previsão em Tempo Real</p>
+    </header>
+
+    <!-- ENTRADA DE RESULTADOS -->
+    <section class="card">
+      <label for="numInput">Digite o Último Número Sorteado (0 a 36):</label>
+      <div class="input-group">
+        <input type="number" id="numInput" min="0" max="36" placeholder="Ex: 33" autofocus>
+        <button id="btnRegistrar" class="btn btn-primary" onclick="adicionarNumero()">Registrar</button>
+      </div>
+    </section>
+
+    <!-- HISTÓRICO DAS JOGADAS -->
+    <section class="card">
+      <div class="card-header">
+        <h2>Histórico de Sorteios</h2>
+        <span class="subtext">Últimas jogadas registradas</span>
+      </div>
+      <div class="history-chips" id="historyContainer">
+        <span class="empty-msg">Aguardando inserção de números pelo Mestre...</span>
+      </div>
+    </section>
+
+    <!-- PAINEL DE PREVISÃO E DECISÃO -->
+    <section class="card prediction-card">
+      <div class="prediction-header">
+        <span class="icon">🔮</span>
+        <h2>Previsão do Bot</h2>
+      </div>
+      
+      <div class="prediction-value" id="predictionText">
+        Insira pelo menos 3 números para iniciar a análise...
+      </div>
+
+      <div class="detail-box" id="analysisDetails" style="display: none;">
+        <!-- Detalhes do padrão identificado vão aqui -->
+      </div>
+
+      <!-- FEEDBACK DO MESTRE (ACERTO / ERRO) -->
+      <div class="feedback-actions" id="feedbackGroup" style="display: none;">
+        <button class="btn btn-success" onclick="registrarFeedback(true)">
+          ✓ O Bot Acertou
+        </button>
+        <button class="btn btn-danger" onclick="registrarFeedback(false)">
+          ✕ O Bot Errou
+        </button>
+      </div>
+    </section>
+
+    <!-- ESTATÍSTICAS E CALIBRAGEM -->
+    <footer class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label">Acertos</span>
+        <span class="stat-value win" id="scoreWin">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Erros</span>
+        <span class="stat-value loss" id="scoreLoss">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Assertividade</span>
+        <span class="stat-value" id="scoreRate">0%</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
