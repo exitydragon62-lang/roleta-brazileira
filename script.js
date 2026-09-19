@@ -1,26 +1,34 @@
 // CONFIGURAÇÕES DA ROLETA EUROPEIA (BETANO)
 const vermelhos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 
+// Mapa dos vizinhos da roleta europeia (para calcular números próximos)
+const vizinhosMesa = {
+  0: [26, 32], 1: [20, 33], 2: [21, 25], 3: [26, 35], 4: [19, 21],
+  5: [10, 24], 6: [27, 34], 7: [28, 29], 8: [11, 23], 9: [22, 31],
+  10: [5, 23], 11: [8, 30], 12: [28, 35], 13: [27, 36], 14: [20, 31],
+  15: [19, 32], 16: [24, 33], 17: [25, 34], 18: [6, 22], 19: [4, 15],
+  20: [1, 14], 21: [2, 4], 22: [9, 18], 23: [8, 10], 24: [5, 16],
+  25: [2, 17], 26: [0, 3], 27: [6, 13], 28: [7, 12], 29: [7, 18],
+  30: [11, 36], 31: [9, 14], 32: [0, 15], 33: [1, 16], 34: [6, 17],
+  35: [3, 12], 36: [13, 30]
+};
+
 let historico = [];
 let vitorias = 0;
 let derrotas = 0;
-let ultimaPrevisao = null;
-let pesoModificador = 1.0; // Sistema de auto-calibragem caso o mestre reporte erros
 
-// ATALHO DE TECLADO: Tecla Enter para inserir número
+// Atalho da tecla Enter
 document.getElementById('numInput').addEventListener('keypress', function (e) {
   if (e.key === 'Enter') {
     adicionarNumero();
   }
 });
 
-// IDENTIFICAR COR DO NÚMERO
 function getCor(num) {
   if (num === 0) return 'verde';
   return vermelhos.includes(num) ? 'vermelho' : 'preto';
 }
 
-// IDENTIFICAR DÚZIA (1st 12, 2nd 12, 3rd 12)
 function getDuzia(num) {
   if (num === 0) return 0;
   if (num <= 12) return 1;
@@ -28,7 +36,6 @@ function getDuzia(num) {
   return 3;
 }
 
-// IDENTIFICAR COLUNA (2to1)
 function getColuna(num) {
   if (num === 0) return 0;
   if ([1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].includes(num)) return 1;
@@ -36,7 +43,6 @@ function getColuna(num) {
   return 3;
 }
 
-// ADICIONAR NOVO NÚMERO
 function adicionarNumero() {
   const input = document.getElementById('numInput');
   const val = parseInt(input.value);
@@ -46,7 +52,7 @@ function adicionarNumero() {
     return;
   }
 
-  historico.unshift(val); // Adiciona no início do histórico
+  historico.unshift(val);
   input.value = '';
   input.focus();
 
@@ -54,7 +60,6 @@ function adicionarNumero() {
   analisarEPrever();
 }
 
-// ATUALIZAR INTERFAÇAS DO HISTÓRICO
 function atualizarHistoricoUI() {
   const container = document.getElementById('historyContainer');
   container.innerHTML = '';
@@ -70,7 +75,7 @@ function atualizarHistoricoUI() {
   });
 }
 
-// MOTOR PRINCIPAL DE ANÁLISE DE PADRÕES
+// MOTOR DE PALPITE DIRETO EM NÚMEROS
 function analisarEPrever() {
   const predText = document.getElementById('predictionText');
   const details = document.getElementById('analysisDetails');
@@ -84,61 +89,42 @@ function analisarEPrever() {
     return;
   }
 
-  const h = historico;
-  let palpite = "";
-  let razao = "";
+  const ult = historico[0]; // Último número sorteado
+  const penult = historico[1];
+  const antepenult = historico[2];
 
-  const d0 = getDuzia(h[0]), d1 = getDuzia(h[1]), d2 = getDuzia(h[2]);
-  const c0 = getColuna(h[0]), c1 = getColuna(h[1]), c2 = getColuna(h[2]);
-  const cor0 = getCor(h[0]), cor1 = getCor(h[1]), cor2 = getCor(h[2]);
+  let numeroAlvo = 17; // Número padrão para o palpite
+  let protecao = [];
 
-  // PADRÃO 1: Repetição de Coluna (Quebra de Coluna)
-  if (c0 > 0 && c0 === c1 && c1 === c2) {
-    const outras = [1, 2, 3].filter(c => c !== c0);
-    palpite = `Aposte nas Colunas ${outras[0]} e ${outras[1]}`;
-    razao = `Identificado: 3 repetições seguidas na Coluna ${c0}.`;
-  }
-  // PADRÃO 2: Repetição de Dúzia (Quebra de Dúzia)
-  else if (d0 > 0 && d0 === d1 && d1 === d2) {
-    const outras = [1, 2, 3].filter(d => d !== d0);
-    palpite = `Aposte nas Dúzias ${outras[0]}ª e ${outras[1]}ª`;
-    razao = `Identificado: 3 repetições seguidas na Dúzia ${d0}.`;
-  }
-  // PADRÃO 3: Sequência de Cores (Quebra de Cor)
-  else if (cor0 === cor1 && cor1 === cor2 && cor0 !== 'verde') {
-    const oposta = cor0 === 'vermelho' ? 'PRETO' : 'VERMELHO';
-    palpite = `Aposte em ${oposta} (+ Proteção no 0)`;
-    razao = `Identificado: Sequência de 3 cores ${cor0.toUpperCase()}S.`;
-  }
-  // PADRÃO 4: Par / Ímpar
-  else if (h[0] % 2 === h[1] % 2 && h[1] % 2 === h[2] % 2 && h[0] !== 0) {
-    const atual = h[0] % 2 === 0 ? 'PAR' : 'ÍMPAR';
-    const oposto = h[0] % 2 === 0 ? 'ÍMPAR' : 'PAR';
-    palpite = `Aposte em ${oposto}`;
-    razao = `Identificado: Sequência de 3 números ${atual}ES.`;
-  }
-  // PADRÃO 5: Tendência por Alternância (Padrão Secundário)
-  else {
-    const corInversa = cor0 === 'vermelho' ? 'PRETO' : 'VERMELHO';
-    palpite = `Entrada Leve: ${corInversa} ou Dúzia ${d0 === 1 ? '2ª/3ª' : '1ª'}`;
-    razao = `Análise de volatilidade: Baixa probabilidade de repetição direta.`;
+  // Estratégia 1: Calcular com base nos vizinhos de roleta do último número
+  if (vizinhosMesa[ult]) {
+    numeroAlvo = vizinhosMesa[ult][0];
+    protecao = [vizinhosMesa[ult][1], 0];
   }
 
-  ultimaPrevisao = palpite;
-  predText.innerText = palpite;
-  details.innerText = razao;
+  // Estratégia 2: Se repetiu cor ou paridade, buscar inversão nos números chaves
+  if (getCor(ult) === getCor(penult) && getCor(penult) === getCor(antepenult)) {
+    // Escolhe um número forte da cor oposta
+    numeroAlvo = getCor(ult) === 'vermelho' ? 20 : 19;
+    protecao = [numeroAlvo === 20 ? 31 : 27, 0];
+  }
+
+  // Montagem da indicação direta
+  const corAlvo = getCor(numeroAlvo).toUpperCase();
+  const textoPalpite = `🎲 APOSTA SECA: NÚMERO ${numeroAlvo} (${corAlvo})`;
+  const textoProtecao = `Proteger nos números: ${protecao.join(', ')}`;
+
+  predText.innerText = textoPalpite;
+  details.innerText = textoProtecao;
   details.style.display = 'block';
   feedbackGroup.style.display = 'flex';
 }
 
-// REGISTRO DE FEEDBACK DO MESTRE (ACERTOU OU ERROU)
 function registrarFeedback(acertou) {
   if (acertou) {
     vitorias++;
   } else {
     derrotas++;
-    // Se errou, ajusta o algoritmo para ser mais cauteloso nas próximas rodadas
-    pesoModificador -= 0.1; 
   }
 
   const total = vitorias + derrotas;
@@ -148,8 +134,7 @@ function registrarFeedback(acertou) {
   document.getElementById('scoreLoss').innerText = derrotas;
   document.getElementById('scoreRate').innerText = `${taxa}%`;
 
-  // Reseta estado para aguardar próxima inserção
   document.getElementById('feedbackGroup').style.display = 'none';
-  document.getElementById('predictionText').innerText = "Insira o próximo resultado para atualizar...";
+  document.getElementById('predictionText').innerText = "Aguardando próxima jogada do Mestre...";
   document.getElementById('analysisDetails').style.display = 'none';
 }
