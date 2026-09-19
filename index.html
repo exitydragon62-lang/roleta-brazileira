@@ -13,8 +13,8 @@
     <!-- CABEÇALHO -->
     <header class="header">
       <div class="badge-live">BETANO / ROLETA FÍSICA</div>
-      <h1>Painel de Análise do Mestre</h1>
-      <p>Mapeamento de Padrões & Previsão em Tempo Real</p>
+      <h1>Painel do Mestre</h1>
+      <p>Palpites em Número Seco & Proteção</p>
     </header>
 
     <!-- ENTRADA DE RESULTADOS -->
@@ -30,29 +30,37 @@
     <section class="card">
       <div class="card-header">
         <h2>Histórico de Sorteios</h2>
-        <span class="subtext">Últimas jogadas registradas</span>
+        <span class="subtext">Últimas jogadas</span>
       </div>
       <div class="history-chips" id="historyContainer">
-        <span class="empty-msg">Aguardando inserção de números pelo Mestre...</span>
+        <span class="empty-msg">Aguardando inserção dos 3 primeiros números...</span>
       </div>
     </section>
 
-    <!-- PAINEL DE PREVISÃO E DECISÃO -->
+    <!-- PAINEL DE PALPITE DIRETO (NÚMERO SECO) -->
     <section class="card prediction-card">
       <div class="prediction-header">
-        <span class="icon">🔮</span>
-        <h2>Previsão do Bot</h2>
+        <span class="icon">🎲</span>
+        <h2>Sugestão de Aposta Seca</h2>
       </div>
       
+      <!-- NÚMERO PRINCIPAL DESTACADO -->
+      <div class="target-number-box" id="targetBox" style="display: none;">
+        <span class="target-label">APOSTE SECO NO NÚMERO:</span>
+        <div class="big-number" id="bigNumberText">--</div>
+      </div>
+
+      <!-- MENSAGEM PADRÃO QUANDO FALTA DADOS -->
       <div class="prediction-value" id="predictionText">
-        Insira pelo menos 3 números para iniciar a análise...
+        Insira pelo menos 3 números para gerar o palpite...
       </div>
 
-      <div class="detail-box" id="analysisDetails" style="display: none;">
-        <!-- Detalhes do padrão identificado vão aqui -->
+      <!-- NÚMEROS DE COBERTURA / PROTEÇÃO -->
+      <div class="protection-box" id="analysisDetails" style="display: none;">
+        <!-- Números de proteção vão aparecer aqui -->
       </div>
 
-      <!-- FEEDBACK DO MESTRE (ACERTO / ERRO) -->
+      <!-- FEEDBACK DO MESTRE -->
       <div class="feedback-actions" id="feedbackGroup" style="display: none;">
         <button class="btn btn-success" onclick="registrarFeedback(true)">
           ✓ O Bot Acertou
@@ -63,7 +71,7 @@
       </div>
     </section>
 
-    <!-- ESTATÍSTICAS E CALIBRAGEM -->
+    <!-- ESTATÍSTICAS -->
     <footer class="stats-bar">
       <div class="stat-item">
         <span class="stat-label">Acertos</span>
